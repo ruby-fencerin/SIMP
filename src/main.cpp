@@ -66,6 +66,12 @@ int main(int, char**)
     SDL_GetWindowWMInfo(window, &wmInfo);
     HWND hwnd = (HWND)wmInfo.info.win.window;
 
+    SDL_Window* window2 = SDL_CreateWindow("Another", 120, 120, 1280, 720, window_flags);
+    SDL_Renderer* pSDLRenderer = SDL_CreateRenderer(window2, -1, SDL_RENDERER_ACCELERATED);
+    SDL_Surface* pSurface = SDL_LoadBMP("test.bmp");
+    SDL_Texture* pTexture = SDL_CreateTextureFromSurface(pSDLRenderer, pSurface);
+    SDL_FreeSurface(pSurface);
+
     // Initialize Direct3D
     if (!CreateDeviceD3D(hwnd))
     {
@@ -107,6 +113,8 @@ int main(int, char**)
     bool show_demo_window = true;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    int r = 0, g = 0, b = 0;
 
     // Main loop
     bool done = false;
@@ -157,6 +165,10 @@ int main(int, char**)
             ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
             ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
+            ImGui::SliderInt("R", &r, 0, 255);
+            ImGui::SliderInt("G", &g, 0, 255);
+            ImGui::SliderInt("B", &b, 0, 255);
+
             if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
                 counter++;
             ImGui::SameLine();
@@ -175,6 +187,10 @@ int main(int, char**)
                 show_another_window = false;
             ImGui::End();
         }
+
+        SDL_SetTextureColorMod(pTexture, r, g, b);
+        SDL_RenderCopy(pSDLRenderer, pTexture, 0, 0);
+        SDL_RenderPresent(pSDLRenderer);
 
         // Rendering
         ImGui::Render();
